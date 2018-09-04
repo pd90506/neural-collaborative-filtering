@@ -26,13 +26,15 @@ class Engine(object):
             users, items, ratings = users.cuda(), items.cuda(), ratings.cuda()
         self.opt.zero_grad()
         ratings_pred = self.model(users, items)
+        ratings = ratings.view(-1, 1)
+        #print(ratings_pred, ratings)
         loss = self.crit(ratings_pred, ratings)
         loss.backward()
         self.opt.step()
-        if self.config['use_cuda'] is True:
-            loss = loss.data.cpu().numpy()[0]
-        else:
-            loss = loss.data.numpy()[0]
+        #if self.config['use_cuda'] is True:
+        #    loss = loss.data.cpu().numpy()[0]
+        #else:
+        #    loss = loss.data.numpy()[0]
         return loss
 
     def train_an_epoch(self, train_loader, epoch_id):
@@ -49,7 +51,9 @@ class Engine(object):
                 item = item.cuda()
                 rating = rating.cuda()
             loss = self.train_single_batch(user, item, rating)
-            print('[Training Epoch {}] Batch {}, Loss {}'.format(epoch_id, batch_id, loss))
+            if batch_id % 1000 == 0:
+                print('[Training Epoch {}] Batch {}, Loss {}'.format(epoch_id, batch_id, loss))
+            
             total_loss += loss
         self._writer.add_scalar('model/loss', total_loss, epoch_id)
 
