@@ -56,6 +56,7 @@ class Engine(object):
             
             total_loss += loss
         self._writer.add_scalar('model/loss', total_loss, epoch_id)
+        print('traub_an_epoch')
 
     def evaluate(self, evaluate_data, epoch_id):
         assert hasattr(self, 'model'), 'Please specify the exact model !'
